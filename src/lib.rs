@@ -7,7 +7,7 @@ use embedded_hal::{
 
 pub use config::*;
 pub use error::Error;
-use register::Register;
+use register::*;
 
 mod config;
 mod error;
@@ -23,53 +23,87 @@ impl<I2C: I2c<Error = E>, E: I2cError> Es8311<I2C> {
         Self { i2c, address }
     }
 
+    fn dump_reg<R: Register + core::fmt::Debug>(&mut self) -> Result<(), Error<E>> {
+        let reg = self.read_reg::<R>()?;
+        log::info!("{reg:#02X?} addr: {}", R::ADDRESS);
+        Ok(())
+    }
+
+    pub fn dump_regs(&mut self) -> Result<(), Error<E>> {
+        self.dump_reg::<Reset>()?;
+        self.dump_reg::<ClockManager01>()?;
+        self.dump_reg::<ClockManager02>()?;
+        self.dump_reg::<ClockManager03>()?;
+        self.dump_reg::<ClockManager04>()?;
+        self.dump_reg::<ClockManager05>()?;
+        self.dump_reg::<ClockManager06>()?;
+        self.dump_reg::<ClockManager07>()?;
+        self.dump_reg::<ClockManager08>()?;
+        self.dump_reg::<ChipId1>()?;
+        self.dump_reg::<ChipId2>()?;
+        self.dump_reg::<ChipVer>()?;
+        Ok(())
+    }
+
     pub fn into_inner(self) -> I2C {
         self.i2c
     }
 
     pub fn init<D: DelayUs>(&mut self, mut delay: D, config: &Config) -> Result<(), Error<E>> {
-        self.write_reg(Register::ResetReg00, 0x1F)?;
+        self.write_reg(
+            Reset::new()
+                .with_rst_dig(true)
+                .with_rst_cmg(true)
+                .with_rst_mst(true)
+                .with_rst_adc_dig(true)
+                .with_rst_dac_dig(true),
+        )?;
         let _ = delay.delay_us(20);
-        self.write_reg(Register::ResetReg00, 0x00)?;
-        self.write_reg(Register::ResetReg00, 0x80)?;
+        self.write_reg(Reset::new())?;
+        self.write_reg(Reset::new().with_csm_on(true))?;
 
         self.clock_config(config)?;
         self.format_config(config.res_in, config.res_out)?;
 
-        self.write_reg(Register::SystemReg0D, 0x01)?;
-        self.write_reg(Register::SystemReg0E, 0x02)?;
-        self.write_reg(Register::SystemReg12, 0x00)?;
-        self.write_reg(Register::SystemReg13, 0x10)?;
-        self.write_reg(Register::AdcReg1C, 0x6A)?;
-        self.write_reg(Register::DacReg37, 0x08)
+        self.write_reg(System03::new().with_vmidsel(0x02))?;
+        self.write_reg(System04(0x02))?;
+        self.write_reg(System08::new())?;
+        self.write_reg(System09::new().with_hpsw(true))?;
+        self.write_reg(
+            Adc08::new()
+                .with_adc_eqbypass(true)
+                .with_adc_hpf(true)
+                .with_adc_hpfs2(0x0A),
+        )?;
+        self.write_reg(Dac07::new().with_dac_eqbypass(true))
     }
 
     fn clock_config(&mut self, config: &Config) -> Result<(), Error<E>> {
-        let mut reg01 = 0x3F;
-        let coefficients = match config.mclk {
-            Some(mclk) => {
-                reg01 |= 1 << 7;
-                Some(mclk)
-            }
-            None => (config.res_in == config.res_out)
-                .then_some(config.sample_frequency.as_freq() * config.res_in.bits() as u32 * 2)
-                .and_then(MclkFreq::try_from_freq),
-        }
-        .and_then(|f| Coefficients::get(f, config.sample_frequency))
-        .ok_or(Error::InvalidConfiguration)?;
+        let mut mclk_sel = true;
+        let coefficients = config
+            .mclk
+            .or_else(|| {
+                mclk_sel = false;
+                (config.res_in == config.res_out)
+                    .then_some(config.sample_frequency.as_freq() * config.res_in.bits() as u32 * 2)
+                    .and_then(MclkFreq::try_from_freq)
+            })
+            .and_then(|f| Coefficients::get(f, config.sample_frequency))
+            .ok_or(Error::InvalidConfiguration)?;
 
-        if config.mclk_inverted {
-            reg01 |= 1 << 6;
-        }
-        self.write_reg(Register::ClkManagerReg01, reg01)?;
+        self.write_reg(
+            ClockManager01::new()
+                .with_mclk_on(true)
+                .with_bclk_on(true)
+                .with_clkadc_on(true)
+                .with_clkdac_on(true)
+                .with_anaclkadc_on(true)
+                .with_anaclkdac_on(true)
+                .with_mclk_inv(config.mclk_inverted)
+                .with_mclk_sel(mclk_sel),
+        )?;
 
-        let mut reg06 = self.read_reg(Register::ClkManagerReg06)?;
-        if config.sclk_inverted {
-            reg06 |= 1 << 5;
-        } else {
-            reg06 &= !(1 << 5);
-        }
-        self.write_reg(Register::ClkManagerReg06, reg06)?;
+        self.update_reg(|reg: ClockManager06| reg.with_bclk_inv(config.sclk_inverted))?;
 
         self.sample_freq_config_inner(coefficients)
     }
@@ -81,109 +115,101 @@ impl<I2C: I2c<Error = E>, E: I2cError> Es8311<I2C> {
     }
 
     pub fn mic_config(&mut self, digital_mic: bool) -> Result<(), Error<E>> {
-        let mut reg14 = 0x1A;
-        if digital_mic {
-            reg14 |= 1 << 6;
-        }
-
-        self.write_reg(Register::AdcReg17, 0xC8)?;
-        self.write_reg(Register::SystemReg14, reg14)
+        self.write_reg(Adc03::new().with_adc_volume(0xC8))?;
+        self.write_reg(
+            System10::new()
+                .with_linsel(true)
+                .with_dmic_on(digital_mic)
+                .with_pgagain(0x0A),
+        )
     }
 
     pub fn set_voice_volume(&mut self, volume: u8) -> Result<(), Error<E>> {
-        self.write_reg(Register::DacReg32, volume)
+        self.write_reg(Dac02::new().with_dac_volume(volume))
     }
 
     pub fn voice_volume(&mut self) -> Result<u8, Error<E>> {
-        self.read_reg(Register::DacReg32)
+        self.read_reg().map(|reg: Dac02| reg.dac_volume())
     }
 
     pub fn voice_mute(&mut self, mute: bool) -> Result<(), Error<E>> {
-        let mut reg31 = self.read_reg(Register::DacReg31)?;
-        const MUTE: u8 = (1 << 6) | (1 << 5);
-        if mute {
-            reg31 |= MUTE;
-        } else {
-            reg31 &= !MUTE;
-        }
-        self.write_reg(Register::DacReg31, reg31)
+        self.update_reg(|reg: Dac01| reg.with_dac_dsmmute(mute).with_dac_demmute(mute))
     }
 
     pub fn set_mic_gain(&mut self, gain: Gain) -> Result<(), Error<E>> {
-        self.write_reg(Register::AdcReg16, gain as u8)
+        self.write_reg(Adc02::new().with_adc_scale(gain as u8))
     }
 
     pub fn set_mic_fade(&mut self, fade: Fade) -> Result<(), Error<E>> {
-        self.set_fade(Register::AdcReg16, fade)
+        self.update_reg(|reg: Adc01| reg.with_adc_ramprate(fade as u8))
     }
 
     pub fn set_voice_fade(&mut self, fade: Fade) -> Result<(), Error<E>> {
-        self.set_fade(Register::DacReg37, fade)
-    }
-
-    fn set_fade(&mut self, register: Register, fade: Fade) -> Result<(), Error<E>> {
-        let mut reg = self.read_reg(register)?;
-        reg &= 0x0F;
-        reg |= (fade as u8) << 4;
-        self.write_reg(register, reg)
+        self.update_reg(|reg: Dac07| reg.with_dac_ramprate(fade as u8))
     }
 
     fn sample_freq_config_inner(&mut self, coefficients: &Coefficients) -> Result<(), Error<E>> {
-        let mut reg02 = self.read_reg(Register::ClkManagerReg02)?;
-        reg02 &= 0x07;
-        reg02 |= (coefficients.pre_div - 1) << 5;
-        reg02 |= coefficients.pre_multi << 3;
-        self.write_reg(Register::ClkManagerReg02, reg02)?;
+        self.update_reg(|reg: ClockManager02| {
+            reg.with_div_pre(coefficients.pre_div - 1)
+                .with_mult_pre(coefficients.pre_multi)
+        })?;
 
-        let reg03 = (coefficients.fs_mode << 6) | coefficients.adc_osr;
-        self.write_reg(Register::ClkManagerReg03, reg03)?;
+        self.write_reg(
+            ClockManager03::new()
+                .with_adc_fsmode(coefficients.fs_mode)
+                .with_adc_osr(coefficients.adc_osr),
+        )?;
 
-        self.write_reg(Register::ClkManagerReg04, coefficients.dac_osr)?;
+        self.write_reg(ClockManager04::new().with_dac_osr(coefficients.dac_osr))?;
 
-        let reg05 = ((coefficients.adc_div - 1) << 4) | (coefficients.dac_div - 1);
-        self.write_reg(Register::ClkManagerReg05, reg05)?;
+        self.write_reg(
+            ClockManager05::new()
+                .with_div_clkadc(coefficients.adc_div - 1)
+                .with_div_clkdac(coefficients.dac_div - 1),
+        )?;
 
-        let mut reg06 = self.read_reg(Register::ClkManagerReg06)?;
-        reg06 &= 0xE0;
-        reg06 |= coefficients.bclk_div - (coefficients.bclk_div < 19) as u8;
-        self.write_reg(Register::ClkManagerReg06, reg06)?;
+        self.update_reg(|reg: ClockManager06| {
+            reg.with_div_bclk(coefficients.bclk_div - (coefficients.bclk_div < 19) as u8)
+        })?;
 
-        let mut reg07 = self.read_reg(Register::ClkManagerReg07)?;
-        reg07 &= 0xC0;
-        reg07 |= coefficients.lrck_h;
-        self.write_reg(Register::ClkManagerReg07, reg07)?;
-        self.write_reg(Register::ClkManagerReg08, coefficients.lrck_l)
+        self.write_reg(ClockManager07::new().with_div_lrck_8_11(coefficients.lrck_h))?;
+        self.write_reg(ClockManager08::new().with_div_lrck_0_7(coefficients.lrck_l))
     }
 
     fn format_config(&mut self, res_in: Resolution, res_out: Resolution) -> Result<(), Error<E>> {
-        let reg00 = self.read_reg(Register::ResetReg00)?;
-        self.write_reg(Register::ResetReg00, reg00 & 0xBF)?;
-        self.write_reg(Register::SdpInReg09, res_in.config())?;
-        self.write_reg(Register::SdpOutReg0A, res_out.config())
+        self.update_reg(|reg: Reset| reg.with_msc(false))?;
+        self.write_reg(SdpIn::new().with_sdp_in_wl(res_in as u8))?;
+        self.write_reg(SdpOut::new().with_sdp_out_wl(res_out as u8))
     }
+    //
+    // pub fn dump_regs(&mut self) -> Result<(), Error<E>> {
+    //     use strum::IntoEnumIterator;
+    //     for register in RegisterE::iter() {
+    //         let reg_val = register as u8;
+    //         let val = self.read_reg(register)?;
+    //         log::info!("register {register:?} at address {reg_val:#02X} with value {val:#02X}")
+    //     }
+    //     Ok(())
+    // }
 
-    pub fn dump_regs(&mut self) -> Result<(), Error<E>> {
-        use strum::IntoEnumIterator;
-        for register in Register::iter() {
-            let reg_val = register as u8;
-            let val = self.read_reg(register)?;
-            log::info!("register {register:?} at address {reg_val:#02X} with value {val:#02X}")
-        }
-        Ok(())
-    }
-
-    fn read_reg(&mut self, reg: Register) -> Result<u8, Error<E>> {
-        use core::array::from_mut;
-        let mut value = 0;
+    #[inline]
+    fn read_reg<R: Register>(&mut self) -> Result<R, Error<E>> {
+        let mut value = [0];
         self.i2c
-            .write_read(self.address as u8, &[reg as u8], from_mut(&mut value))
+            .write_read(self.address as u8, &[R::ADDRESS], &mut value)
             .map_err(Error::BusError)?;
-        Ok(value)
+        Ok(value[0].into())
     }
 
-    fn write_reg(&mut self, reg: Register, value: u8) -> Result<(), Error<E>> {
+    #[inline]
+    fn write_reg<R: Register>(&mut self, reg: R) -> Result<(), Error<E>> {
         self.i2c
-            .write(self.address as u8, &[reg as u8, value])
+            .write(self.address as u8, &[R::ADDRESS, reg.into()])
             .map_err(Error::BusError)
+    }
+
+    #[inline]
+    fn update_reg<R: Register, F: FnOnce(R) -> R>(&mut self, f: F) -> Result<(), Error<E>> {
+        self.read_reg().and_then(|reg| self.write_reg(f(reg)))
     }
 }

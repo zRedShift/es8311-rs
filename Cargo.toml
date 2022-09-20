@@ -8,9 +8,9 @@ readme = "README.md"
 
 [dependencies]
 embedded-hal = "1.0.0-alpha.8"
-strum = { version = "0.24.1", default-features = false, features = ["derive"] }
 log = "0.4.17"
+proc-bitfield = "0.2.1"
 
 [features]
-default = ["std"]
-std = ["strum/std"]
+default = [ "std" ]
+std = [ "log/std" ]

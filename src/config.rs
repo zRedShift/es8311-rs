@@ -104,8 +104,7 @@ impl MclkFreq {
 
 #[derive(Copy, Clone, Debug)]
 pub enum Gain {
-    GainMin = -1,
-    Gain0db,
+    Gain0db = 0,
     Gain6db,
     Gain12db,
     Gain18db,
@@ -113,7 +112,6 @@ pub enum Gain {
     Gain30db,
     Gain36db,
     Gain42db,
-    GainMax,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -155,10 +153,6 @@ impl Resolution {
             Resolution24 => 24,
             Resolution32 => 32,
         }
-    }
-
-    pub(crate) const fn config(self) -> u8 {
-        (self as u8) << 2
     }
 }
 
