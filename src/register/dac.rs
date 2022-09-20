@@ -64,10 +64,13 @@ bitfield! {
     }
 }
 
-register!(Dac01, 0x31, 0b0000_0000);
-register!(Dac02, 0x32, 0b0000_0000);
-register!(Dac03, 0x33, 0b0000_0000);
-register!(Dac04, 0x34, 0b0000_0000);
-register!(Dac05, 0x35, 0b0000_0000);
-register!(Dac06, 0x36, 0b0000_0000);
-register!(Dac07, 0x37, 0b0000_1000);
+register_group! {
+    Dac,
+    (Dac01, 0x31, 0b0000_0000),
+    (Dac02, 0x32, 0b0000_0000),
+    (Dac03, 0x33, 0b0000_0000),
+    (Dac04, 0x34, 0b0000_0000),
+    (Dac05, 0x35, 0b0000_0000),
+    (Dac06, 0x36, 0b0000_0000),
+    (Dac07, 0x37, 0b0000_1000),
+}

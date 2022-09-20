@@ -75,11 +75,14 @@ bitfield! {
     }
 }
 
-register!(Adc01, 0x15, 0b0000_0000);
-register!(Adc02, 0x16, 0b0000_0100);
-register!(Adc03, 0x17, 0b0000_0000);
-register!(Adc04, 0x18, 0b0000_0000);
-register!(Adc05, 0x19, 0b0000_0000);
-register!(Adc06, 0x1A, 0b0000_0000);
-register!(Adc07, 0x1B, 0b0000_1100);
-register!(Adc08, 0x1C, 0b0100_1100);
+register_group! {
+    Adc,
+    (Adc01, 0x15, 0b0000_0000),
+    (Adc02, 0x16, 0b0000_0100),
+    (Adc03, 0x17, 0b0000_0000),
+    (Adc04, 0x18, 0b0000_0000),
+    (Adc05, 0x19, 0b0000_0000),
+    (Adc06, 0x1A, 0b0000_0000),
+    (Adc07, 0x1B, 0b0000_1100),
+    (Adc08, 0x1C, 0b0100_1100),
+}

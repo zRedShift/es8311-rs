@@ -107,32 +107,16 @@ bitfield! {
     }
 }
 
-register!(System01, 0x0B, 0b0000_0000);
-register!(System02, 0x0C, 0b0010_0000);
-register!(System03, 0x0D, 0b1111_1100);
-register!(System04, 0x0E, 0b0110_1010);
-register!(System05, 0x0F, 0b0000_0000);
-register!(System06, 0x10, 0b0001_0011);
-register!(System07, 0x11, 0b0111_1100);
-register!(System08, 0x12, 0b0000_0010);
-register!(System09, 0x13, 0b0100_0000);
-register!(System10, 0x14, 0b0001_0000);
-
-pub(crate) struct System(System01, System02, System03, System04);
-
-// impl core::fmt::Debug for System {
-//     fn fmt(&self, f: &mut ::core::fmt::Formatter) -> core::fmt::Result {
-//         impl ::core::fmt::Debug for System10 {
-//             fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
-//                 let mut debug = f.debug_tuple(stringify!(System));
-//                 f.debug_struct(stringify!(System10))
-//                     .field("0", &self.0)
-//                     .field(stringify!(dmic_on), &self.dmic_on())
-//                     .field(stringify!(linsel), &self.linsel())
-//                     .field(stringify!(pgagain), &self.pgagain())
-//                     .finish()
-//             }
-//         }
-//         todo!()
-//     }
-// }
+register_group! {
+    System,
+    (System01, 0x0B, 0b0000_0000),
+    (System02, 0x0C, 0b0010_0000),
+    (System03, 0x0D, 0b1111_1100),
+    (System04, 0x0E, 0b0110_1010),
+    (System05, 0x0F, 0b0000_0000),
+    (System06, 0x10, 0b0001_0011),
+    (System07, 0x11, 0b0111_1100),
+    (System08, 0x12, 0b0000_0010),
+    (System09, 0x13, 0b0100_0000),
+    (System10, 0x14, 0b0001_0000),
+}

@@ -1,5 +1,24 @@
 use proc_bitfield::bitfield;
 
+macro_rules! register_group {
+    ($group:ident, $(($name:ident, $address:literal, $default:literal)),+$(,)?) => {
+        $(register!($name, $address, $default);)+
+
+        #[derive(Debug)]
+        pub(crate) struct $group($($crate::register::WrappedRegister<$name>,)+);
+
+        impl $group {
+            fn read_group<I2C, E>(es8311: &mut $crate::Es8311<I2C>) -> Result<Self, $crate::Error<E>>
+            where
+                I2C: $crate::I2c<Error = E>,
+                E: $crate::I2cError,
+            {
+                Ok(Self($($crate::register::WrappedRegister(es8311.read_reg::<$name>()?),)+))
+            }
+        }
+    };
+}
+
 macro_rules! register {
     ($name:ident, $address:literal, $default:literal) => {
         impl $name {
@@ -10,25 +29,25 @@ macro_rules! register {
             }
         }
 
-        impl From<u8> for $name {
+        impl ::core::convert::From<u8> for $name {
             fn from(val: u8) -> Self {
                 Self(val)
             }
         }
 
-        impl From<$name> for u8 {
+        impl ::core::convert::From<$name> for u8 {
             fn from($name(val): $name) -> Self {
                 val
             }
         }
 
-        impl Default for $name {
+        impl ::core::default::Default for $name {
             fn default() -> Self {
                 Self($default)
             }
         }
 
-        impl Register for $name {
+        impl $crate::register::Register for $name {
             const ADDRESS: u8 = $address;
         }
     };

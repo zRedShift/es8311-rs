@@ -84,11 +84,14 @@ pub(crate) fn div_lrck(first: ClockManager07, second: ClockManager08) -> u16 {
     u16::from_le_bytes([second.div_lrck_0_7(), first.div_lrck_8_11()])
 }
 
-register!(ClockManager01, 0x01, 0b0000_0000);
-register!(ClockManager02, 0x02, 0b0000_0000);
-register!(ClockManager03, 0x03, 0b0001_0000);
-register!(ClockManager04, 0x04, 0b0001_0000);
-register!(ClockManager05, 0x05, 0b0000_0000);
-register!(ClockManager06, 0x06, 0b0000_0011);
-register!(ClockManager07, 0x07, 0b0000_0000);
-register!(ClockManager08, 0x08, 0b1111_1111);
+register_group! {
+    ClockManager,
+    (ClockManager01, 0x01, 0b0000_0000),
+    (ClockManager02, 0x02, 0b0000_0000),
+    (ClockManager03, 0x03, 0b0001_0000),
+    (ClockManager04, 0x04, 0b0001_0000),
+    (ClockManager05, 0x05, 0b0000_0000),
+    (ClockManager06, 0x06, 0b0000_0011),
+    (ClockManager07, 0x07, 0b0000_0000),
+    (ClockManager08, 0x08, 0b1111_1111),
+}

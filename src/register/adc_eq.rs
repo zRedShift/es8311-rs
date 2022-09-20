@@ -160,23 +160,26 @@ bitfield! {
     }
 }
 
-register!(AdcEqualizerB01, 0x1D, 0b0000_0000);
-register!(AdcEqualizerB02, 0x1E, 0b0000_0000);
-register!(AdcEqualizerB03, 0x1F, 0b0000_0000);
-register!(AdcEqualizerB04, 0x20, 0b0000_0000);
-register!(AdcEqualizerA11, 0x21, 0b0000_0000);
-register!(AdcEqualizerA12, 0x22, 0b0000_0000);
-register!(AdcEqualizerA13, 0x23, 0b0000_0000);
-register!(AdcEqualizerA14, 0x24, 0b0000_0000);
-register!(AdcEqualizerA21, 0x25, 0b0000_0000);
-register!(AdcEqualizerA22, 0x26, 0b0000_0000);
-register!(AdcEqualizerA23, 0x27, 0b0000_0000);
-register!(AdcEqualizerA24, 0x28, 0b0000_0000);
-register!(AdcEqualizerB11, 0x29, 0b0000_0000);
-register!(AdcEqualizerB12, 0x2A, 0b0000_0000);
-register!(AdcEqualizerB13, 0x2B, 0b0000_0000);
-register!(AdcEqualizerB14, 0x2C, 0b0000_0000);
-register!(AdcEqualizerB21, 0x2D, 0b0000_0000);
-register!(AdcEqualizerB22, 0x2E, 0b0000_0000);
-register!(AdcEqualizerB23, 0x2F, 0b0000_0000);
-register!(AdcEqualizerB24, 0x30, 0b0000_0000);
+register_group! {
+    AdcEqualizer,
+    (AdcEqualizerB01, 0x1D, 0b0000_0000),
+    (AdcEqualizerB02, 0x1E, 0b0000_0000),
+    (AdcEqualizerB03, 0x1F, 0b0000_0000),
+    (AdcEqualizerB04, 0x20, 0b0000_0000),
+    (AdcEqualizerA11, 0x21, 0b0000_0000),
+    (AdcEqualizerA12, 0x22, 0b0000_0000),
+    (AdcEqualizerA13, 0x23, 0b0000_0000),
+    (AdcEqualizerA14, 0x24, 0b0000_0000),
+    (AdcEqualizerA21, 0x25, 0b0000_0000),
+    (AdcEqualizerA22, 0x26, 0b0000_0000),
+    (AdcEqualizerA23, 0x27, 0b0000_0000),
+    (AdcEqualizerA24, 0x28, 0b0000_0000),
+    (AdcEqualizerB11, 0x29, 0b0000_0000),
+    (AdcEqualizerB12, 0x2A, 0b0000_0000),
+    (AdcEqualizerB13, 0x2B, 0b0000_0000),
+    (AdcEqualizerB14, 0x2C, 0b0000_0000),
+    (AdcEqualizerB21, 0x2D, 0b0000_0000),
+    (AdcEqualizerB22, 0x2E, 0b0000_0000),
+    (AdcEqualizerB23, 0x2F, 0b0000_0000),
+    (AdcEqualizerB24, 0x30, 0b0000_0000),
+}

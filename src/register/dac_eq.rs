@@ -96,15 +96,18 @@ bitfield! {
     }
 }
 
-register!(DacEqualizerB01, 0x38, 0b0000_0000);
-register!(DacEqualizerB02, 0x39, 0b0000_0000);
-register!(DacEqualizerB03, 0x3A, 0b0000_0000);
-register!(DacEqualizerB04, 0x3B, 0b0000_0000);
-register!(DacEqualizerB11, 0x3C, 0b0000_0000);
-register!(DacEqualizerB12, 0x3D, 0b0000_0000);
-register!(DacEqualizerB13, 0x3E, 0b0000_0000);
-register!(DacEqualizerB14, 0x3F, 0b0000_0000);
-register!(DacEqualizerA11, 0x40, 0b0000_0000);
-register!(DacEqualizerA12, 0x41, 0b0000_0000);
-register!(DacEqualizerA13, 0x42, 0b0000_0000);
-register!(DacEqualizerA14, 0x43, 0b0000_0000);
+register_group! {
+    DacEqualizer,
+    (DacEqualizerB01, 0x38, 0b0000_0000),
+    (DacEqualizerB02, 0x39, 0b0000_0000),
+    (DacEqualizerB03, 0x3A, 0b0000_0000),
+    (DacEqualizerB04, 0x3B, 0b0000_0000),
+    (DacEqualizerB11, 0x3C, 0b0000_0000),
+    (DacEqualizerB12, 0x3D, 0b0000_0000),
+    (DacEqualizerB13, 0x3E, 0b0000_0000),
+    (DacEqualizerB14, 0x3F, 0b0000_0000),
+    (DacEqualizerA11, 0x40, 0b0000_0000),
+    (DacEqualizerA12, 0x41, 0b0000_0000),
+    (DacEqualizerA13, 0x42, 0b0000_0000),
+    (DacEqualizerA14, 0x43, 0b0000_0000),
+}
