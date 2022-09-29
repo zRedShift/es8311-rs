@@ -18,13 +18,17 @@ pub struct Es8311LowLevel<I2C> {
     address: Address,
 }
 
-impl<I2C: I2c<Error = E>, E: I2cError> Es8311LowLevel<I2C> {
+impl<I2C: I2c<Error = E>, E> Es8311LowLevel<I2C> {
     pub fn new(i2c: I2C, address: Address) -> Self {
         Self { i2c, address }
     }
 
     pub fn into_inner(self) -> I2C {
         self.i2c
+    }
+
+    pub fn dump_registers(&mut self) -> Result<impl core::fmt::Debug, E> {
+        RegisterDump::read_group(self)
     }
 
     #[inline]
@@ -49,13 +53,19 @@ impl<I2C: I2c<Error = E>, E: I2cError> Es8311LowLevel<I2C> {
 }
 
 pub struct Es8311<I2C> {
-    i2c: I2C,
-    address: Address,
+    inner: Es8311LowLevel<I2C>,
 }
 
 impl<I2C: I2c<Error = E>, E: I2cError> Es8311<I2C> {
-    pub fn new(i2c: I2C, address: Address) -> Self {
-        Self { i2c, address }
+    pub fn new(i2c: I2C, address: Address) -> Result<Self, Error<E>> {
+        let mut this = Self {
+            inner: Es8311LowLevel::new(i2c, address),
+        };
+        if is_es8311(this.read_reg()?, this.read_reg()?) {
+            Ok(this)
+        } else {
+            Err(Error::WrongChip)
+        }
     }
 
     // fn dump_reg<R: Register + Debug>(&mut self) -> Result<impl Debug + Sized, Error<E>> {
@@ -64,12 +74,12 @@ impl<I2C: I2c<Error = E>, E: I2cError> Es8311<I2C> {
     //     Ok(())
     // }
 
-    pub fn dump_regs(&mut self) -> Result<impl core::fmt::Debug + Sized, Error<E>> {
-        RegisterDump::read_group(self)
+    pub fn dump_registers(&mut self) -> Result<impl core::fmt::Debug + Sized, Error<E>> {
+        self.inner.dump_registers().map_err(Error::BusError)
     }
 
     pub fn into_inner(self) -> I2C {
-        self.i2c
+        self.inner.into_inner()
     }
 
     pub fn init<D: DelayUs>(&mut self, mut delay: D, config: &Config) -> Result<(), Error<E>> {
@@ -217,22 +227,16 @@ impl<I2C: I2c<Error = E>, E: I2cError> Es8311<I2C> {
 
     #[inline]
     fn read_reg<R: Register>(&mut self) -> Result<R, Error<E>> {
-        let mut value = [0];
-        self.i2c
-            .write_read(self.address as u8, &[R::ADDRESS], &mut value)
-            .map_err(Error::BusError)?;
-        Ok(value[0].into())
+        self.inner.read_register().map_err(Error::BusError)
     }
 
     #[inline]
     fn write_reg<R: Register>(&mut self, reg: R) -> Result<(), Error<E>> {
-        self.i2c
-            .write(self.address as u8, &[R::ADDRESS, reg.into()])
-            .map_err(Error::BusError)
+        self.inner.write_register(reg).map_err(Error::BusError)
     }
 
     #[inline]
     fn update_reg<R: Register, F: FnOnce(R) -> R>(&mut self, f: F) -> Result<(), Error<E>> {
-        self.read_reg().and_then(|reg| self.write_reg(f(reg)))
+        self.inner.update_reg(f).map_err(Error::BusError)
     }
 }

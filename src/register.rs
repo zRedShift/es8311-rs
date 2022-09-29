@@ -8,12 +8,10 @@ macro_rules! register_group {
         pub(crate) struct $group($($crate::register::WrappedRegister<$name>,)+);
 
         impl $group {
-            pub(crate) fn read_group<I2C, E>(es8311: &mut $crate::Es8311<I2C>) -> Result<Self, $crate::Error<E>>
-            where
-                I2C: $crate::I2c<Error = E>,
-                E: $crate::I2cError,
-            {
-                Ok(Self($($crate::register::WrappedRegister(es8311.read_reg::<$name>()?),)+))
+            pub(crate) fn read_group<I2C: $crate::I2c<Error = E>, E>(
+                es8311: &mut $crate::Es8311LowLevel<I2C>
+            ) -> Result<Self, E> {
+                Ok(Self($($crate::register::WrappedRegister(es8311.read_register::<$name>()?),)+))
             }
         }
     };
@@ -222,30 +220,26 @@ pub(crate) struct RegisterDump(
 );
 
 impl RegisterDump {
-    pub(crate) fn read_group<I2C, E>(
-        es8311: &mut super::Es8311<I2C>,
-    ) -> Result<Self, super::Error<E>>
-    where
-        I2C: super::I2c<Error = E>,
-        E: super::I2cError,
-    {
+    pub(crate) fn read_group<I2C: super::I2c<Error = E>, E>(
+        es8311: &mut super::Es8311LowLevel<I2C>,
+    ) -> Result<Self, E> {
         Ok(Self(
-            WrappedRegister(es8311.read_reg()?),
+            WrappedRegister(es8311.read_register()?),
             ClockManager::read_group(es8311)?,
-            WrappedRegister(es8311.read_reg()?),
-            WrappedRegister(es8311.read_reg()?),
+            WrappedRegister(es8311.read_register()?),
+            WrappedRegister(es8311.read_register()?),
             System::read_group(es8311)?,
             Adc::read_group(es8311)?,
             AdcEqualizer::read_group(es8311)?,
             Dac::read_group(es8311)?,
             DacEqualizer::read_group(es8311)?,
-            WrappedRegister(es8311.read_reg()?),
-            WrappedRegister(es8311.read_reg()?),
-            WrappedRegister(es8311.read_reg()?),
-            WrappedRegister(es8311.read_reg()?),
-            WrappedRegister(es8311.read_reg()?),
-            WrappedRegister(es8311.read_reg()?),
-            WrappedRegister(es8311.read_reg()?),
+            WrappedRegister(es8311.read_register()?),
+            WrappedRegister(es8311.read_register()?),
+            WrappedRegister(es8311.read_register()?),
+            WrappedRegister(es8311.read_register()?),
+            WrappedRegister(es8311.read_register()?),
+            WrappedRegister(es8311.read_register()?),
+            WrappedRegister(es8311.read_register()?),
         ))
     }
 }

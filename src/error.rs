@@ -2,6 +2,7 @@
 pub enum Error<E> {
     BusError(E),
     InvalidConfiguration,
+    WrongChip,
 }
 
 #[cfg(feature = "std")]
@@ -10,6 +11,7 @@ impl<E: std::fmt::Display> std::fmt::Display for Error<E> {
         match self {
             Self::BusError(err) => write!(f, "Bus Error: {err}"),
             Self::InvalidConfiguration => write!(f, "Invalid clock configuration"),
+            Self::WrongChip => write!(f, "Wrong Chip"),
         }
     }
 }
