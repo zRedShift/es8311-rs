@@ -1,9 +1,9 @@
-use super::{bitfield, Register};
+use proc_bitfield::bitfield;
 
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB01(pub u8): Debug {
+    pub struct AdcEqualizerB01(u8): Debug {
         pub adceq_b0_24_29: u8 @ 0..=5,
     }
 }
@@ -11,7 +11,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB02(pub u8): Debug {
+    pub struct AdcEqualizerB02(u8): Debug {
         pub adceq_b0_16_23: u8 @ 0..=7,
     }
 }
@@ -19,7 +19,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB03(pub u8): Debug {
+    pub struct AdcEqualizerB03(u8): Debug {
         pub adceq_b0_8_15: u8 @ 0..=7,
     }
 }
@@ -27,7 +27,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB04(pub u8): Debug {
+    pub struct AdcEqualizerB04(u8): Debug {
         pub adceq_b0_0_7: u8 @ 0..=7,
     }
 }
@@ -35,7 +35,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerA11(pub u8): Debug {
+    pub struct AdcEqualizerA11(u8): Debug {
         pub adceq_a1_24_29: u8 @ 0..=5,
     }
 }
@@ -43,7 +43,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerA12(pub u8): Debug {
+    pub struct AdcEqualizerA12(u8): Debug {
         pub adceq_a1_16_23: u8 @ 0..=7,
     }
 }
@@ -51,7 +51,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerA13(pub u8): Debug {
+    pub struct AdcEqualizerA13(u8): Debug {
         pub adceq_a1_8_15: u8 @ 0..=7,
     }
 }
@@ -59,7 +59,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerA14(pub u8): Debug {
+    pub struct AdcEqualizerA14(u8): Debug {
         pub adceq_a1_0_7: u8 @ 0..=7,
     }
 }
@@ -67,7 +67,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerA21(pub u8): Debug {
+    pub struct AdcEqualizerA21(u8): Debug {
         pub adceq_a2_24_29: u8 @ 0..=5,
     }
 }
@@ -75,7 +75,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerA22(pub u8): Debug {
+    pub struct AdcEqualizerA22(u8): Debug {
         pub adceq_a2_16_23: u8 @ 0..=7,
     }
 }
@@ -83,7 +83,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerA23(pub u8): Debug {
+    pub struct AdcEqualizerA23(u8): Debug {
         pub adceq_a2_8_15: u8 @ 0..=7,
     }
 }
@@ -91,7 +91,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerA24(pub u8): Debug {
+    pub struct AdcEqualizerA24(u8): Debug {
         pub adceq_a2_0_7: u8 @ 0..=7,
     }
 }
@@ -99,7 +99,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB11(pub u8): Debug {
+    pub struct AdcEqualizerB11(u8): Debug {
         pub adceq_b1_24_29: u8 @ 0..=5,
     }
 }
@@ -107,7 +107,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB12(pub u8): Debug {
+    pub struct AdcEqualizerB12(u8): Debug {
         pub adceq_b1_16_23: u8 @ 0..=7,
     }
 }
@@ -115,7 +115,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB13(pub u8): Debug {
+    pub struct AdcEqualizerB13(u8): Debug {
         pub adceq_b1_8_15: u8 @ 0..=7,
     }
 }
@@ -123,7 +123,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB14(pub u8): Debug {
+    pub struct AdcEqualizerB14(u8): Debug {
         pub adceq_b1_0_7: u8 @ 0..=7,
     }
 }
@@ -131,7 +131,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB21(pub u8): Debug {
+    pub struct AdcEqualizerB21(u8): Debug {
         pub adceq_b2_24_29: u8 @ 0..=5,
     }
 }
@@ -139,7 +139,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB22(pub u8): Debug {
+    pub struct AdcEqualizerB22(u8): Debug {
         pub adceq_b2_16_23: u8 @ 0..=7,
     }
 }
@@ -147,7 +147,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB23(pub u8): Debug {
+    pub struct AdcEqualizerB23(u8): Debug {
         pub adceq_b2_8_15: u8 @ 0..=7,
     }
 }
@@ -155,7 +155,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct AdcEqualizerB24(pub u8): Debug {
+    pub struct AdcEqualizerB24(u8): Debug {
         pub adceq_b2_0_7: u8 @ 0..=7,
     }
 }

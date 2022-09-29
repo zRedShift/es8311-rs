@@ -8,7 +8,7 @@ macro_rules! register_group {
         pub(crate) struct $group($($crate::register::WrappedRegister<$name>,)+);
 
         impl $group {
-            fn read_group<I2C, E>(es8311: &mut $crate::Es8311<I2C>) -> Result<Self, $crate::Error<E>>
+            pub(crate) fn read_group<I2C, E>(es8311: &mut $crate::Es8311<I2C>) -> Result<Self, $crate::Error<E>>
             where
                 I2C: $crate::I2c<Error = E>,
                 E: $crate::I2cError,
@@ -23,7 +23,6 @@ macro_rules! register {
     ($name:ident, $address:literal, $default:literal) => {
         impl $name {
             #[must_use]
-            #[allow(dead_code)]
             pub const fn new() -> Self {
                 Self(0x00)
             }
@@ -47,14 +46,20 @@ macro_rules! register {
             }
         }
 
+        impl $crate::register::private::Sealed for $name {}
+
         impl $crate::register::Register for $name {
             const ADDRESS: u8 = $address;
         }
     };
 }
 
-pub(crate) trait Register: From<u8> + Into<u8> + Default {
+pub trait Register: From<u8> + Into<u8> + Default + private::Sealed {
     const ADDRESS: u8;
+}
+
+mod private {
+    pub trait Sealed {}
 }
 
 struct WrappedRegister<R>(R);
@@ -67,8 +72,7 @@ impl<R: Register + core::fmt::Debug> core::fmt::Debug for WrappedRegister<R> {
     }
 }
 
-#[allow(unused_imports)]
-pub(crate) use {adc::*, adc_eq::*, clock_manager::*, dac::*, dac_eq::*, system::*};
+pub use {adc::*, adc_eq::*, clock_manager::*, dac::*, dac_eq::*, system::*};
 
 mod adc;
 mod adc_eq;
@@ -80,7 +84,7 @@ mod system;
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Reset(pub u8): Debug {
+    pub struct Reset(u8): Debug {
         pub csm_on: bool @ 7,
         pub msc: bool @ 6,
         pub seq_dis: bool @ 5,
@@ -95,7 +99,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct SdpIn(pub u8): Debug {
+    pub struct SdpIn(u8): Debug {
         pub sdp_in_sel: bool @ 7,
         pub sdp_in_mute: bool @ 6,
         pub sdp_in_lrp: bool @ 5,
@@ -107,7 +111,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct SdpOut(pub u8): Debug {
+    pub struct SdpOut(u8): Debug {
         pub sdp_out_mute: bool @ 6,
         pub sdp_out_lrp: bool @ 5,
         pub sdp_out_wl: u8 @ 2..=4,
@@ -118,7 +122,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Gpio(pub u8): Debug {
+    pub struct Gpio(u8): Debug {
         pub adc2dac_sel: bool @ 7,
         pub adcdat_sel: u8 @ 4..=6,
         pub i2c_wl: bool @ 3,
@@ -130,7 +134,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Gp(pub u8): Debug {
+    pub struct Gp(u8): Debug {
         pub forcecsm: u8 [ro] @ 4..=7,
         pub adc_dly_sel: bool [ro] @ 0,
         pub dac_dly_sel: bool [ro] @ 0,
@@ -142,7 +146,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct I2c(pub u8): Debug {
+    pub struct I2c(u8): Debug {
         pub i2c_retime: bool [ro] @ 1,
         pub ini_reg: bool @ 0,
     }
@@ -151,7 +155,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Flag(pub u8): Debug {
+    pub struct Flag(u8): Debug {
         pub flag_csm_chip: u8 [ro] @ 4..=6,
         pub flag_adcam: bool [ro] @ 1,
         pub flag_dacam: bool [ro] @ 0,
@@ -161,7 +165,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ChipId1(pub u8): Debug {
+    pub struct ChipId1(u8): Debug {
         pub chip_id1: u8 @ 0..=7,
     }
 }
@@ -169,7 +173,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ChipId2(pub u8): Debug {
+    pub struct ChipId2(u8): Debug {
         pub chip_id2: u8 @ 0..=7,
     }
 }
@@ -177,7 +181,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ChipVer(pub u8): Debug {
+    pub struct ChipVer(u8): Debug {
         pub chip_ver: u8 @ 0..=7,
     }
 }
@@ -196,3 +200,52 @@ register!(Flag, 0x0FC, 0b0000_0000);
 register!(ChipId1, 0xFD, 0x83);
 register!(ChipId2, 0xFE, 0x11);
 register!(ChipVer, 0xFF, 0b0000_0000);
+
+#[derive(Debug)]
+pub(crate) struct RegisterDump(
+    WrappedRegister<Reset>,
+    ClockManager,
+    WrappedRegister<SdpIn>,
+    WrappedRegister<SdpOut>,
+    System,
+    Adc,
+    AdcEqualizer,
+    Dac,
+    DacEqualizer,
+    WrappedRegister<Gpio>,
+    WrappedRegister<Gp>,
+    WrappedRegister<I2c>,
+    WrappedRegister<Flag>,
+    WrappedRegister<ChipId1>,
+    WrappedRegister<ChipId2>,
+    WrappedRegister<ChipVer>,
+);
+
+impl RegisterDump {
+    pub(crate) fn read_group<I2C, E>(
+        es8311: &mut super::Es8311<I2C>,
+    ) -> Result<Self, super::Error<E>>
+    where
+        I2C: super::I2c<Error = E>,
+        E: super::I2cError,
+    {
+        Ok(Self(
+            WrappedRegister(es8311.read_reg()?),
+            ClockManager::read_group(es8311)?,
+            WrappedRegister(es8311.read_reg()?),
+            WrappedRegister(es8311.read_reg()?),
+            System::read_group(es8311)?,
+            Adc::read_group(es8311)?,
+            AdcEqualizer::read_group(es8311)?,
+            Dac::read_group(es8311)?,
+            DacEqualizer::read_group(es8311)?,
+            WrappedRegister(es8311.read_reg()?),
+            WrappedRegister(es8311.read_reg()?),
+            WrappedRegister(es8311.read_reg()?),
+            WrappedRegister(es8311.read_reg()?),
+            WrappedRegister(es8311.read_reg()?),
+            WrappedRegister(es8311.read_reg()?),
+            WrappedRegister(es8311.read_reg()?),
+        ))
+    }
+}

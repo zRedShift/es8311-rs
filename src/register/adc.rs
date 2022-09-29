@@ -1,9 +1,9 @@
-use super::{bitfield, Register};
+use proc_bitfield::bitfield;
 
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Adc01(pub u8): Debug {
+    pub struct Adc01(u8): Debug {
         pub adc_ramprate: u8 @ 4..=7,
         pub dmic_sense: bool @ 0,
     }
@@ -12,7 +12,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Adc02(pub u8): Debug {
+    pub struct Adc02(u8): Debug {
         pub adc_sync: bool @ 5,
         pub adc_inv: bool @ 4,
         pub adc_ramclr: bool @ 3,
@@ -23,7 +23,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Adc03(pub u8): Debug {
+    pub struct Adc03(u8): Debug {
         pub adc_volume: u8 @ 0..=7,
     }
 }
@@ -31,7 +31,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Adc04(pub u8): Debug {
+    pub struct Adc04(u8): Debug {
         pub alc_en: bool @ 7,
         pub adc_automute_en: bool @ 6,
         pub alc_winsize: u8 @ 0..=3,
@@ -41,7 +41,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Adc05(pub u8): Debug {
+    pub struct Adc05(u8): Debug {
         pub alc_maxlevel: u8 @ 4..=7,
         pub alc_minlevel: u8 @ 0..=3,
     }
@@ -50,7 +50,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Adc06(pub u8): Debug {
+    pub struct Adc06(u8): Debug {
         pub adc_automute_ws: u8 @ 4..=7,
         pub adc_automute_ng: u8 @ 0..=3,
     }
@@ -59,7 +59,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Adc07(pub u8): Debug {
+    pub struct Adc07(u8): Debug {
         pub adc_automute_vol: u8 @ 5..=7,
         pub adc_hpfs1: u8 @ 0..=4,
     }
@@ -68,7 +68,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct Adc08(pub u8): Debug {
+    pub struct Adc08(u8): Debug {
         pub adc_eqbypass: bool @ 6,
         pub adc_hpf: bool @ 5,
         pub adc_hpfs2: u8 @ 0..=4,

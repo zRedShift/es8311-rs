@@ -1,9 +1,9 @@
-use super::{bitfield, Register};
+use proc_bitfield::bitfield;
 
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ClockManager01(pub u8): Debug {
+    pub struct ClockManager01(u8): Debug {
         pub mclk_sel: bool @ 7,
         pub mclk_inv: bool @ 6,
         pub mclk_on: bool @ 5,
@@ -18,7 +18,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ClockManager02(pub u8): Debug {
+    pub struct ClockManager02(u8): Debug {
         pub div_pre: u8 @ 5..=7,
         pub mult_pre: u8 @ 3..=4,
         pub pathsel: bool @ 2,
@@ -29,7 +29,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ClockManager03(pub u8): Debug {
+    pub struct ClockManager03(u8): Debug {
         pub adc_fsmode: bool @ 6,
         pub adc_osr: u8 @ 0..=5,
     }
@@ -38,7 +38,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ClockManager04(pub u8): Debug {
+    pub struct ClockManager04(u8): Debug {
         pub dac_osr: u8 @ 0..=6,
     }
 }
@@ -46,7 +46,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ClockManager05(pub u8): Debug {
+    pub struct ClockManager05(u8): Debug {
         pub div_clkadc: u8 @ 4..=7,
         pub div_clkdac: u8 @ 0..=3,
     }
@@ -55,7 +55,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ClockManager06(pub u8): Debug {
+    pub struct ClockManager06(u8): Debug {
         pub bclk_con: bool @ 6,
         pub bclk_inv: bool @ 5,
         pub div_bclk: u8 @ 0..=4,
@@ -65,7 +65,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ClockManager07(pub u8): Debug {
+    pub struct ClockManager07(u8): Debug {
         pub tri_blrck: bool @ 5,
         pub tri_adcdat: bool @ 4,
         pub div_lrck_8_11: u8 @ 0..=3
@@ -75,7 +75,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct ClockManager08(pub u8): Debug {
+    pub struct ClockManager08(u8): Debug {
         pub div_lrck_0_7: u8 @ 0..=7,
     }
 }

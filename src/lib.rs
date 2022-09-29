@@ -13,6 +13,41 @@ mod config;
 mod error;
 mod register;
 
+pub struct Es8311LowLevel<I2C> {
+    i2c: I2C,
+    address: Address,
+}
+
+impl<I2C: I2c<Error = E>, E: I2cError> Es8311LowLevel<I2C> {
+    pub fn new(i2c: I2C, address: Address) -> Self {
+        Self { i2c, address }
+    }
+
+    pub fn into_inner(self) -> I2C {
+        self.i2c
+    }
+
+    #[inline]
+    pub fn read_register<R: Register>(&mut self) -> Result<R, E> {
+        let mut value = [0];
+        self.i2c
+            .write_read(self.address as u8, &[R::ADDRESS], &mut value)?;
+        Ok(value[0].into())
+    }
+
+    #[inline]
+    pub fn write_register<R: Register>(&mut self, reg: R) -> Result<(), E> {
+        self.i2c
+            .write(self.address as u8, &[R::ADDRESS, reg.into()])
+    }
+
+    #[inline]
+    pub fn update_reg<R: Register, F: FnOnce(R) -> R>(&mut self, f: F) -> Result<(), E> {
+        self.read_register()
+            .and_then(|reg| self.write_register(f(reg)))
+    }
+}
+
 pub struct Es8311<I2C> {
     i2c: I2C,
     address: Address,
@@ -23,26 +58,14 @@ impl<I2C: I2c<Error = E>, E: I2cError> Es8311<I2C> {
         Self { i2c, address }
     }
 
-    fn dump_reg<R: Register + core::fmt::Debug>(&mut self) -> Result<(), Error<E>> {
-        let reg = self.read_reg::<R>()?;
-        log::info!("{reg:#02X?} addr: {}", R::ADDRESS);
-        Ok(())
-    }
+    // fn dump_reg<R: Register + Debug>(&mut self) -> Result<impl Debug + Sized, Error<E>> {
+    //     let reg = self.read_reg::<R>()?;
+    //     log::info!("{reg:#02X?} addr: {}", R::ADDRESS);
+    //     Ok(())
+    // }
 
-    pub fn dump_regs(&mut self) -> Result<(), Error<E>> {
-        self.dump_reg::<Reset>()?;
-        self.dump_reg::<ClockManager01>()?;
-        self.dump_reg::<ClockManager02>()?;
-        self.dump_reg::<ClockManager03>()?;
-        self.dump_reg::<ClockManager04>()?;
-        self.dump_reg::<ClockManager05>()?;
-        self.dump_reg::<ClockManager06>()?;
-        self.dump_reg::<ClockManager07>()?;
-        self.dump_reg::<ClockManager08>()?;
-        self.dump_reg::<ChipId1>()?;
-        self.dump_reg::<ChipId2>()?;
-        self.dump_reg::<ChipVer>()?;
-        Ok(())
+    pub fn dump_regs(&mut self) -> Result<impl core::fmt::Debug + Sized, Error<E>> {
+        RegisterDump::read_group(self)
     }
 
     pub fn into_inner(self) -> I2C {
@@ -66,7 +89,7 @@ impl<I2C: I2c<Error = E>, E: I2cError> Es8311<I2C> {
         self.format_config(config.res_in, config.res_out)?;
 
         self.write_reg(System03::new().with_vmidsel(0x02))?;
-        self.write_reg(System04(0x02))?;
+        self.write_reg(System04::new())?;
         self.write_reg(System08::new())?;
         self.write_reg(System09::new().with_hpsw(true))?;
         self.write_reg(

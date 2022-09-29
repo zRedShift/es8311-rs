@@ -1,9 +1,9 @@
-use super::{bitfield, Register};
+use proc_bitfield::bitfield;
 
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct System01(pub u8): Debug {
+    pub struct System01(u8): Debug {
         pub pwrup_a: u8 @ 3..=7,
         pub pwrup_b_1_3: u8 @ 0..=2,
     }
@@ -12,7 +12,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct System02(pub u8): Debug {
+    pub struct System02(u8): Debug {
         pub pwrup_b_0: u8 @ 7; 1,
         pub pwrup_c: u8 @ 0..=6,
     }
@@ -21,7 +21,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct System03(pub u8): Debug {
+    pub struct System03(u8): Debug {
         pub pdn_ana: bool @ 7,
         pub pdn_ibiasgen: bool @ 6,
         pub pdn_adcbiasgen: bool @ 5,
@@ -35,7 +35,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct System04(pub u8): Debug {
+    pub struct System04(u8): Debug {
         pub pdn_pga: bool @ 6,
         pub pdn_mod: bool @ 5,
         pub rst_mod: bool @ 4,
@@ -47,7 +47,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct System05(pub u8): Debug {
+    pub struct System05(u8): Debug {
         pub lpdac: bool @ 7,
         pub lppga: bool @ 6,
         pub lppgaout: bool @ 5,
@@ -62,7 +62,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct System06(pub u8): Debug {
+    pub struct System06(u8): Debug {
         pub syncmode: bool @ 7,
         pub vmidlow: u8 @ 5..=6,
         pub dac_ibias_sw: bool @ 4,
@@ -75,7 +75,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct System07(pub u8): Debug {
+    pub struct System07(u8): Debug {
         pub vsel: u8 [ro] @ 0..=6,
     }
 }
@@ -83,7 +83,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct System08(pub u8): Debug {
+    pub struct System08(u8): Debug {
         pub pdn_dac: bool @ 1,
         pub enrefr: bool @ 0,
     }
@@ -92,7 +92,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct System09(pub u8): Debug {
+    pub struct System09(u8): Debug {
         pub hpsw: bool @ 4,
     }
 }
@@ -100,7 +100,7 @@ bitfield! {
 bitfield! {
     #[repr(transparent)]
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub(crate) struct System10(pub u8): Debug {
+    pub struct System10(u8): Debug {
         pub dmic_on: bool @ 6,
         pub linsel: bool @ 4,
         pub pgagain: u8 @ 0..=3,
